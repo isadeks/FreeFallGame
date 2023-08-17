@@ -1,0 +1,17 @@
+Character 215 189
+Platform -31 29 Platform
+Platform 169 29 PoisonPlatform
+Platform 324 29 Platform
+Platform -22 129 Platform
+Platform 162 129 BrokenPlatform
+Platform 303 129 PoisonPlatform
+Platform -11 229 Platform
+Platform 155 229 MoneyPlatform
+Platform 290 229 Platform
+Platform -7 329 PoisonPlatform
+Platform 150 329 Platform
+Platform 330 329 Platform
+Platform -18 454 Platform
+Platform 152 454 Platform
+Platform 314 454 Platform
+Score 1

@@ -1,0 +1,181 @@
+package org.cis1200.freefall;
+
+import java.awt.Graphics;
+
+/**
+ * An object in the game.
+ *
+ * Game objects exist in the game court. They have a position, velocity, size
+ * and bounds. Their velocity controls how they move; their position should
+ * always be within their bounds.
+ */
+public abstract class GameObj {
+    /*
+     * Current position of the object (in terms of graphics coordinates)
+     *
+     * Coordinates are given by the upper-left hand corner of the object. This
+     * position should always be within bounds:
+     * 0 <= px <= maxX 0 <= py <= maxY
+     */
+    private int px;
+    private int py;
+
+    /* Size of object, in pixels. */
+    private final int width;
+    private final int height;
+
+    /* Velocity: number of pixels to move every time move() is called. */
+    private int vx;
+    private int vy;
+
+    /*
+     * Upper bounds of the area in which the object can be positioned. Maximum
+     * permissible x, y positions for the upper-left hand corner of the object.
+     */
+    private final int maxX;
+    private final int maxY;
+
+    // private final bool isClipped;
+
+    /**
+     * Constructor
+     */
+    public GameObj(
+            int vx, int vy, int px, int py, int width, int height, int courtwidth,
+            int courtheight
+    ) {
+        this.vx = vx;
+        this.vy = vy;
+        this.px = px;
+        this.py = py;
+        this.width = width;
+        this.height = height;
+
+        // take the width and height into account when setting the bounds for
+        // the upper left corner of the object.
+        this.maxX = courtwidth - width;
+        this.maxY = courtheight - height;
+    }
+
+    // **********************************************************************************
+    // * GETTERS
+    // **********************************************************************************
+    public int getPx() {
+        return this.px;
+    }
+
+    public int getPy() {
+        return this.py;
+    }
+
+    public int getVx() {
+        return this.vx;
+    }
+
+    public int getVy() {
+        return this.vy;
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
+    }
+
+    // **************************************************************************
+    // * SETTERS
+    // **************************************************************************
+    public void setPx(int px) {
+        this.px = px;
+        // clip();
+    }
+
+    public void setPy(int py) {
+        this.py = py;
+        // clip();
+    }
+
+    public void setVx(int vx) {
+        this.vx = vx;
+    }
+
+    public void setVy(int vy) {
+        this.vy = vy;
+    }
+
+    // **************************************************************************
+    // * UPDATES AND OTHER METHODS
+    // **************************************************************************
+
+    /**
+     * Prevents the object from going outside the bounds of the area
+     * designated for the object (i.e. Object cannot go outside the active
+     * area the user defines for it).
+     */
+    private void clip() {
+        this.px = Math.min(Math.max(this.px, 0), this.maxX);
+        // this.py = Math.min(this.py, 450);
+    }
+
+    /**
+     * Moves the object by its velocity. Ensures that the object does not go
+     * outside its bounds by clipping.
+     */
+    public void move() {
+        this.px += this.vx;
+        this.py += this.vy;
+
+        if (this.getClass().equals(Character.class)) {
+            this.clip();
+        }
+
+    }
+
+    /**
+     * Determine whether the game object will hit another object in the next
+     * time step. If so, return the direction of the other object in relation to
+     * this game object.
+     *
+     * As you read through the code, it might be useful to draw things out and
+     * visualize the unit circle.
+     *
+     * @param platform The other object
+     * @return Direction of impending object after collision, or null if no
+     *         collision.
+     */
+    public boolean hitObj(GameObj platform) {
+        if ((platform.px - this.px <= 40 && platform.px - this.px >= 0) ||
+                (this.px - platform.px <= 90 && this.px - platform.px >= 0)) {
+            if (platform.py - this.py >= 39 && platform.py - this.py <= 41) {
+                if (platform.getClass().equals(BrokenPlatform.class)) {
+                    ((BrokenPlatform) platform).touched();
+                    if (((BrokenPlatform) platform).isBroken()) {
+                        this.vy = 2;
+                        return false;
+                    }
+                }
+                if (platform.getClass().equals(MoneyPlatform.class)) {
+                    ((MoneyPlatform) platform).addToScore();
+                }
+                this.vy = -1;
+                return true;
+            }
+        }
+        this.vy = 2;
+        return false;
+    }
+
+    /**
+     * Default draw method that provides how the object should be drawn in the
+     * GUI. This method does not draw anything. Subclass should override this
+     * method based on how their object should appear.
+     *
+     * @param g The <code>Graphics</code> context used for drawing the object.
+     *          Remember graphics contexts that we used in OCaml, it gives the
+     *          context in which the object should be drawn (a canvas, a frame,
+     *          etc.)
+     */
+    public abstract void draw(Graphics g);
+}
